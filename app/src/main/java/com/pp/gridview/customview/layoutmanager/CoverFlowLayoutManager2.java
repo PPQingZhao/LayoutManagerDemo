@@ -1,4 +1,4 @@
-package com.pp.gridview.customview;
+package com.pp.gridview.customview.layoutmanager;
 
 import android.graphics.PointF;
 import android.graphics.Rect;
@@ -13,33 +13,37 @@ import java.util.HashMap;
 
 public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implements RecyclerView.SmoothScroller.ScrollVectorProvider {
 
-    private static final int NONE_DIRECTION = 0;
-    private static final int POSITIVE_DIRECTION = 1;
-    private static final int NEGATIVE_DIRECTION = -1;
     public final static int VERTICAL = 0;
     public final static int HORIZONTAL = 1;
-    private int oldState = RecyclerView.SCROLL_STATE_IDLE;
-    private RecyclerView recyclerView;
-    private boolean finishScroll;
 
     @IntDef({VERTICAL, HORIZONTAL})
     public @interface OrientationMode {
     }
 
+    private static final int NONE_DIRECTION = 0;
+    private static final int POSITIVE_DIRECTION = 1;
+    private static final int NEGATIVE_DIRECTION = -1;
+    private int oldState = RecyclerView.SCROLL_STATE_IDLE;
+    private RecyclerView recyclerView;
+    /*手指松开后是否进行粘性滚动*/
+    private boolean finishScroll;
+    private boolean scrollPagerModel = true;
+
+
     /**
      * 标记滑动方向
      * ①竖直滑动:
-     * 　   　POSITIVE_DIRECTION　　item向上滑动
-     * 　　　　NEGATIVE_DIRECTION　　item向下滑动
+     * POSITIVE_DIRECTION　　item向上滑动
+     * NEGATIVE_DIRECTION　　item向下滑动
      * ②横向滑动
-     * POSITIVE_DIRECTION　　item向右滑动
-     * 　　　　NEGATIVE_DIRECTION　　item向左滑动
+     * POSITIVE_DIRECTION　　item向左滑动
+     * NEGATIVE_DIRECTION　　item向右滑动
      */
     private int slidingDirection = NONE_DIRECTION;
     private int orientation = VERTICAL;
     /*记录item对应的矩形位置*/
     private final SparseArray<Rect> allItemframs = new SparseArray<>();
-    /*记录　item是否添加到recyclerview中*/
+    /*记录　item是否已经添加到recyclerview中*/
     private final HashMap<Integer, Boolean> itemAttachedState = new HashMap<>();
     //列
     private int columCount = 2;
@@ -48,8 +52,11 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
 
     private int totalHeight;
     private int totalWidth;
+    /*竖直方向偏移量*/
     private int verticalScrollOffset;
+    /*水平方向偏移量*/
     private int horizontalScrollOffset;
+    /*是否可以滑动*/
     private boolean canScroll = true;
 
     public CoverFlowLayoutManager2(int columCount, int rowCount) {
@@ -70,6 +77,7 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
      */
     @Override
     public PointF computeScrollVectorForPosition(int targetPosition) {
+        Log.e("TAG", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@computeScrollVectorForPosition");
         if (getChildCount() == 0) {
             return null;
         }
@@ -89,14 +97,12 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        if (getItemCount() == 0) {
-            detachAndScrapAttachedViews(recycler);
+        Log.e("TAG", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  onLayoutChildren  start");
+        if (state.getItemCount() == 0) {
+            removeAndRecycleAllViews(recycler);
             return;
         }
-        if (getChildCount() == 0 && state.isPreLayout()) {
-            return;
-        }
-        allItemframs.clear();
+//        recycler.setViewCacheSize(orientation == VERTICAL ? columCount : rowCount);
         itemAttachedState.clear();
         totalHeight = 0;
         totalWidth = 0;
@@ -130,12 +136,9 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
             // -> mAdapter.hasStableIds()
             // ->RecycledViewPool(根据viewtype查找,adapter里要重新再onBindViewHolder)
             // ->还没有找到就调用到adapter的CreateViewHolder创建
-            View child = recycler.getViewForPosition(i);
-            int measureSpecWidth = View.MeasureSpec.makeMeasureSpec(recycleViewWidth / columCount, View.MeasureSpec.EXACTLY);
-            int measureSpecHeight = View.MeasureSpec.makeMeasureSpec(recyclerViewHeight / rowCount, View.MeasureSpec.EXACTLY);
-            child.measure(measureSpecWidth, measureSpecHeight);
-            int decoratedMeasuredWidth = getDecoratedMeasuredWidth(child);
-            int decoratedMeasuredHeight = getDecoratedMeasuredHeight(child);
+
+            int decoratedMeasuredWidth = /*getDecoratedMeasuredWidth(child)*/recycleViewWidth / columCount;
+            int decoratedMeasuredHeight = /*getDecoratedMeasuredHeight(child)*/recyclerViewHeight / rowCount;
             int left = getLeftValue(i, recycleViewWidth, decoratedMeasuredWidth);
             int top = getTopValue(i, recyclerViewHeight, decoratedMeasuredHeight);
             int right = getRightValue(i, recycleViewWidth, decoratedMeasuredWidth);
@@ -146,6 +149,10 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
 //                Log.e("TAG", i + "   ************** rect: " + rect);
                 //添加显示item
                 if (null == itemAttachedState.get(i) || !itemAttachedState.get(i)) {
+                    View child = recycler.getViewForPosition(i);
+                    int measureSpecWidth = View.MeasureSpec.makeMeasureSpec(decoratedMeasuredWidth, View.MeasureSpec.EXACTLY);
+                    int measureSpecHeight = View.MeasureSpec.makeMeasureSpec(decoratedMeasuredHeight, View.MeasureSpec.EXACTLY);
+                    child.measure(measureSpecWidth, measureSpecHeight);
                     addView(child);
                     layoutItem(child, allItemframs.get(i));
                     itemAttachedState.put(i, true);
@@ -165,8 +172,9 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
             }
         }
         if (null != onPagerChangeListener) {
-            onPagerChangeListener.onPageSelected(verticalScrollOffset / getHeight());
+            onPagerChangeListener.onPageSelected(getCurrPagerIndex());
         }
+        Log.e("TAG", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  onLayoutChildren  end");
     }
 
     @Override
@@ -210,7 +218,7 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
         } else if (horizontalScrollOffset + dx > (totalWidth - getWidth())) { //抵达右边界
             scrollＸ = (totalWidth - getWidth()) - horizontalScrollOffset;
         }
-        if (finishScroll) { //手指抬起，页面调整偏移
+        if (finishScroll) { //手指抬起，页面进行粘性滑动
             slidingDirection = slidingDirection;
         } else if (scrollＸ > 0) { //向左边滑动
             slidingDirection = POSITIVE_DIRECTION;
@@ -222,6 +230,7 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
         //开始移动
         offsetChildrenHorizontal(0 - scrollＸ);
         recyclerViewFillView(recycler);
+//        recyclerViewFillView2(recycler);
         return scrollＸ;
     }
 
@@ -247,6 +256,7 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
         offsetChildrenVertical(0 - scrollY);
         //回收item
         recyclerViewFillView(recycler);
+//        recyclerViewFillView2(recycler);
         return scrollY;
     }
 
@@ -257,10 +267,10 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
             case RecyclerView.SCROLL_STATE_IDLE:
                 //停止滚动
                 canScroll = true;
-                finishScroll = fixOffsetWhenFinishScroll();
+                finishScroll = scrollPagerModel ? fixOffsetWhenFinishScroll() : false;
                 if (!finishScroll) {
                     if (null != onPagerChangeListener) {
-                        onPagerChangeListener.onPageSelected(verticalScrollOffset / getHeight());
+                        onPagerChangeListener.onPageSelected(getCurrPagerIndex());
                     }
                 }
                 break;
@@ -270,7 +280,7 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
                 break;
             case RecyclerView.SCROLL_STATE_SETTLING:
                 //开始动画滚动　(惯性滚动)
-                canScroll = oldState != RecyclerView.SCROLL_STATE_DRAGGING;
+                canScroll = scrollPagerModel ? oldState != RecyclerView.SCROLL_STATE_DRAGGING : true;
                 break;
         }
         oldState = state;
@@ -327,12 +337,14 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
             if (!Rect.intersects(recyclerViewFrame, allItemframs.get(position))) {
                 //item 不可见,recyclerview移除当前childview，并将之放入到recycler缓存池
                 removeAndRecycleView(childView, recycler);
+
                 itemAttachedState.put(position, false);
                 i--;
             } else {  //Item还在显示区域内，更新滑动后Item的位置
                 itemAttachedState.put(position, true);
             }
         }
+
 //        可见区域显示在屏幕上的子view
         for (int j = 0; j < getItemCount(); j++) {
             if (Rect.intersects(recyclerViewFrame, allItemframs.get(j))) {
@@ -379,7 +391,11 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
                 int measureSpecWidth = View.MeasureSpec.makeMeasureSpec(recycleViewWidth / columCount, View.MeasureSpec.EXACTLY);
                 int measureSpecHeight = View.MeasureSpec.makeMeasureSpec(recyclerViewHeight / rowCount, View.MeasureSpec.EXACTLY);
                 scrap.measure(measureSpecWidth, measureSpecHeight);
-                addView(scrap);
+                if (slidingDirection == NEGATIVE_DIRECTION) { //向下滑动
+                    addView(scrap, j % columCount);
+                } else {
+                    addView(scrap);
+                }
                 layoutItem(scrap, allItemframs.get(j));
             }
         }
@@ -446,6 +462,14 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
     public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {
         super.onDetachedFromWindow(view, recycler);
         recyclerView = null;
+    }
+
+    public int getPageCount() {
+        return orientation == HORIZONTAL ? totalWidth / getWidth() : totalHeight / getHeight();
+    }
+
+    private int getCurrPagerIndex() {
+        return orientation == HORIZONTAL ? horizontalScrollOffset / getWidth() : verticalScrollOffset / getHeight();
     }
 
     /**

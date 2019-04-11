@@ -1,4 +1,4 @@
-package com.pp.gridview.customview;
+package com.pp.gridview.customview.layoutmanager;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;

@@ -3,28 +3,37 @@ package com.pp.gridview.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.pp.gridview.R;
+import com.pp.gridview.data.ItemModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
-    private final List<String> dataList = new ArrayList<>();
+    private final List<ItemModel> dataList = new ArrayList<>();
     private final Context context;
     private int mFromPos = -1;
     private int mToPos = -1;
+    private RequestOptions requestOptions = new RequestOptions();
 
-    public BaseAdapter(Context context, List<String> data) {
+    public BaseAdapter(Context context, List<ItemModel> data) {
         this.context = context;
         setData(data);
+        requestOptions.diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .error(R.mipmap.ic_launcher_round)
+                .skipMemoryCache(false)
+                .placeholder(R.mipmap.ic_launcher);
     }
 
-    public void setData(List<String> data) {
+    public void setData(List<ItemModel> data) {
         dataList.clear();
         dataList.addAll(data);
     }
@@ -34,13 +43,23 @@ public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
+        Log.e("TAG", "************** onCreateViewHolder ");
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        String content = dataList.get(position);
-        holder.tv_show.setText(content);
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
+        Log.e("TAG", "************** onBindViewHolder position : " + position);
+        final ItemModel itemModel = dataList.get(position);
+        if (null != itemModel) {
+//            Glide.with(context).load(itemModel.getIconId()).apply(requestOptions).into(holder.iv_show);
+            holder.iv_show.setImageResource(itemModel.getIconId());
+        }
         if (null != onItemClickListener) {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -58,11 +77,11 @@ public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView tv_show;
+        private final ImageView iv_show;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            tv_show = itemView.findViewById(R.id.tv_show);
+            iv_show = itemView.findViewById(R.id.iv_show);
         }
     }
 
@@ -77,11 +96,17 @@ public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
     }
 
     public void swapItem(int fromPos, int toPos) {
-        String from = dataList.get(fromPos);
-        String to = dataList.set(toPos, from);
+        ItemModel from = dataList.get(fromPos);
+        ItemModel to = dataList.set(toPos, from);
         dataList.set(fromPos, to);
         notifyItemChanged(fromPos);
         notifyItemChanged(toPos);
-//        notifyDataSetChanged();
+    }
+
+    public void itemMoved(int fromPos, int toPos) {
+        ItemModel from = dataList.get(fromPos);
+        ItemModel to = dataList.set(toPos, from);
+        dataList.set(fromPos, to);
+        notifyItemMoved(fromPos, toPos);
     }
 }

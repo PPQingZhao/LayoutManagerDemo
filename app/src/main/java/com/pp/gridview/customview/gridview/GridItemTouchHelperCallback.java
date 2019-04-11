@@ -2,46 +2,21 @@ package com.pp.gridview.customview.gridview;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.Gravity;
-import android.view.WindowManager;
-
-import com.pp.gridview.customview.deletebar.DeleteBarView;
+import android.util.Log;
 
 import java.util.List;
 
 public class GridItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
-    private final WindowManager.LayoutParams deletedBarParams;
-    private final DeleteBarView deleteBarView;
-    private final WindowManager windowManager;
-    private int mFromPos = -1;
     private int mToPos = -1;
     private RecyclerView.ViewHolder mTargetHolder;
     private boolean onMoving = false;
 
     public GridItemTouchHelperCallback(Context context) {
-        deletedBarParams = new WindowManager.LayoutParams();
-        deletedBarParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-        deletedBarParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        deletedBarParams.gravity = Gravity.TOP | Gravity.LEFT;
-        deletedBarParams.format = PixelFormat.RGBA_8888;
-        deletedBarParams.windowAnimations = 0;
-        deletedBarParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
-                | WindowManager.LayoutParams.FLAG_FULLSCREEN;
-        deleteBarView = new DeleteBarView(context);
 
-        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-    }
-
-    public void setDeleteBarLayoutParams(int width, int height) {
-        deleteBarView.setDeleteBarLayoutParams(width, height);
     }
 
     @Override
@@ -70,30 +45,23 @@ public class GridItemTouchHelperCallback extends ItemTouchHelper.Callback {
     public void onMoved(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, int fromPos, RecyclerView.ViewHolder target, int toPos, int x, int y) {
         mToPos = toPos;
         mTargetHolder = target;
-        super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
-        if (y < -20) {
-            deleteBarView.setSelected(true);
-        } else {
-            deleteBarView.setSelected(false);
+        Log.e("TAG","************** onMoved: " + mToPos);
+        if (null != onItemTouchHelperListener) {
+            onItemTouchHelperListener.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
         }
+        super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
     }
 
     @Override
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+        Log.e("TAG","************** onSelectedChanged: " + actionState);
         if (null != onItemTouchHelperListener) {
             onItemTouchHelperListener.onSelectedChanged(viewHolder, actionState);
         }
         onMoving = false;
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) { //　开始拖动　item
-            mFromPos = viewHolder.getAdapterPosition();
         }
         super.onSelectedChanged(viewHolder, actionState);
-        if (null != deleteBarView.getParent()) {
-            windowManager.removeViewImmediate(deleteBarView);
-        } else {
-            windowManager.addView(deleteBarView, deletedBarParams);
-            windowManager.updateViewLayout(deleteBarView, deletedBarParams);
-        }
     }
 
 
@@ -107,8 +75,9 @@ public class GridItemTouchHelperCallback extends ItemTouchHelper.Callback {
             if (!isCurrentlyActive
                     && targetHect.contains(fromHect.centerX(), fromHect.centerY())
                     && mTargetHolder != viewHolder) {
-                onItemTouchHelperListener.move(viewHolder, mFromPos, mToPos);
-                mFromPos = -1;
+                Log.e("TAG","************** onChildDraw: " + actionState);
+                Log.e("TAG","************** onChildDraw: " + viewHolder.getAdapterPosition());
+                onItemTouchHelperListener.exChange(viewHolder, mTargetHolder, viewHolder.getAdapterPosition(), mToPos);
                 mToPos = -1;
                 mTargetHolder = null;
                 onMoving = true;
@@ -161,7 +130,9 @@ public class GridItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     public interface OnItemTouchHelperListener {
-        void move(RecyclerView.ViewHolder dragViewHolder, int fromPos, int toPos);
+        void exChange(RecyclerView.ViewHolder dragViewHolder, RecyclerView.ViewHolder targetViewHolder, int fromPos, int toPos);
+
+        void onMoved(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, int fromPos, RecyclerView.ViewHolder target, int toPos, int x, int y);
 
         void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState);
 

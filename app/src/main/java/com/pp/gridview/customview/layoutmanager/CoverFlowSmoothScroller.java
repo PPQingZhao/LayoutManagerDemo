@@ -1,4 +1,4 @@
-package com.pp.gridview.customview;
+package com.pp.gridview.customview.layoutmanager;
 
 import android.content.Context;
 import android.graphics.PointF;
