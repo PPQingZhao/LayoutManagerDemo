@@ -141,6 +141,9 @@ public class CoverFlowLayoutManager extends RecyclerView.LayoutManager {
                 int height = recyclerView.getHeight();
                 int scrollerY = getScrollY();
                 int offest = scrollerY % height;
+                Log.e("TAG", "************* offset: " + offest);
+                Log.e("TAG", "************* offest > height / 4: " + (offest > height / 4));
+                Log.e("TAG", "************* slidingDirection: " + slidingDirection);
                 if (offest > 0) {
                     if (slidingDirection == POSITIVE_DIRECTION) { //向下
                         if (offest > height / 4) {

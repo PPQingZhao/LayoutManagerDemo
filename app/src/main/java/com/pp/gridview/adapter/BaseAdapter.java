@@ -1,24 +1,19 @@
 package com.pp.gridview.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.pp.gridview.R;
-import com.pp.gridview.customview.gridview.GridItemTouchHelperCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder>
-        implements GridItemTouchHelperCallback.OnItemTouchHelperListener {
+public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
     private final List<String> dataList = new ArrayList<>();
     private final Context context;
     private int mFromPos = -1;
@@ -81,31 +76,7 @@ public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder>
         void onItemClick(View view, int position);
     }
 
-
-    @Override
-    public void move(RecyclerView.ViewHolder dragHolder, int fromPos, int toPos) {
-        if (null != dragHolder) {
-            dragHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
-        }
-        swapItem(fromPos, toPos);
-    }
-
-    @Override
-    public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-            viewHolder.itemView.setBackgroundColor(Color.RED);
-        }
-    }
-
-    @Override
-    public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-        if (null == viewHolder) return;
-        viewHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
-    }
-
     public void swapItem(int fromPos, int toPos) {
-        Log.e("TAG","*************** fromPos: " + fromPos);
-        Log.e("TAG","*************** toPos: " + toPos);
         String from = dataList.get(fromPos);
         String to = dataList.set(toPos, from);
         dataList.set(fromPos, to);

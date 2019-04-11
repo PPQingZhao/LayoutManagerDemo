@@ -3,7 +3,6 @@ package com.pp.gridview;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
@@ -16,6 +15,7 @@ import android.widget.TextView;
 import com.pp.gridview.adapter.BaseAdapter;
 import com.pp.gridview.customview.CoverFlowLayoutManager;
 import com.pp.gridview.customview.CoverFlowLayoutManager2;
+import com.pp.gridview.customview.OnGridItemTouchHelperListener;
 import com.pp.gridview.customview.SingleGridView;
 import com.pp.gridview.customview.deletebar.DeleteBarView;
 import com.pp.gridview.customview.gridview.GridItemTouchHelperCallback;
@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private DeleteBarView deleteBarView;
     private WindowManager windowManager;
     private GridItemTouchHelperCallback gridItemTouchHelperCallback;
+    private BaseAdapter baseAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,40 @@ public class MainActivity extends AppCompatActivity {
         setContentView(com.pp.gridview.R.layout.activity_main);
         initView();
         initGridView();
+        initRecyclerView();
+    }
+
+    private void initRecyclerView() {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            list.add("position: " + i);
+        }
+        baseAdapter = new BaseAdapter(getBaseContext(), list);
+        baseAdapter.setOnItemClickListener(onItemClickListener);
+//        CoverFlowLayoutManager2 coverFlowLayoutManager2 = new CoverFlowLayoutManager2(3, 5,CoverFlowLayoutManager2.VERTICAL);
+        CoverFlowLayoutManager2 coverFlowLayoutManager2 = new CoverFlowLayoutManager2(3, 5,CoverFlowLayoutManager2.HORIZONTAL);
+        CoverFlowLayoutManager coverFlowLayoutManager = new CoverFlowLayoutManager();
+//        main_recyclerview.setLayoutManager(coverFlowLayoutManager2);
+        main_recyclerview.setLayoutManager(coverFlowLayoutManager2);
+        main_recyclerview.setAdapter(baseAdapter);
+        gridItemTouchHelperCallback = new GridItemTouchHelperCallback(this);
+        gridItemTouchHelperCallback.setOnItemTouchHelperListener(new OnGridItemTouchHelperListener(coverFlowLayoutManager2,baseAdapter));
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(gridItemTouchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(main_recyclerview);
+        main_recyclerview.post(new Runnable() {
+            @Override
+            public void run() {
+                int[] outLocation = new int[2];
+                main_recyclerview.getLocationOnScreen(outLocation);
+                gridItemTouchHelperCallback.setDeleteBarLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, outLocation[1]);
+            }
+        });
+        coverFlowLayoutManager2.setOnPagerChangeListener(new CoverFlowLayoutManager2.OnPagerChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                Log.e("TAG","******************** onPageSelected: " + position);
+            }
+        });
     }
 
     private void initGridView() {
@@ -69,35 +104,16 @@ public class MainActivity extends AppCompatActivity {
         findViewById(com.pp.gridview.R.id.main_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                main_recyclerview.smoothScrollToPosition(40);
+            }
+        });
+        findViewById(R.id.main_btn2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                main_recyclerview.scrollToPosition(20);
             }
         });
         main_recyclerview = findViewById(com.pp.gridview.R.id.main_recyclerview);
-        List<String> list = new ArrayList<>();
-        for (int i = 0; i < 51; i++) {
-            list.add("position: " + i);
-        }
-        BaseAdapter baseAdapter = new BaseAdapter(getBaseContext(), list);
-        baseAdapter.setOnItemClickListener(onItemClickListener);
-        coverFlowLayoutManager = new CoverFlowLayoutManager();
-//        main_recyclerview.setLayoutManager(new LinearLayoutManager(getBaseContext()));
-//        main_recyclerview.setLayoutManager(coverFlowLayoutManager);
-        main_recyclerview.setLayoutManager(new CoverFlowLayoutManager2(3, 3));
-        main_recyclerview.setAdapter(baseAdapter);
-        DefaultItemAnimator defaultItemAnimator = new DefaultItemAnimator();
-        defaultItemAnimator.setSupportsChangeAnimations(false);
-        main_recyclerview.setItemAnimator(defaultItemAnimator);
-        gridItemTouchHelperCallback = new GridItemTouchHelperCallback(this);
-        gridItemTouchHelperCallback.setOnItemTouchHelperListener(baseAdapter);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(gridItemTouchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(main_recyclerview);
-        main_recyclerview.post(new Runnable() {
-            @Override
-            public void run() {
-                int[] outLocation = new int[2];
-                main_recyclerview.getLocationOnScreen(outLocation);
-                gridItemTouchHelperCallback.setDeleteBarLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, outLocation[1]);
-            }
-        });
     }
 
     BaseAdapter.OnItemClickListener onItemClickListener = new BaseAdapter.OnItemClickListener() {
