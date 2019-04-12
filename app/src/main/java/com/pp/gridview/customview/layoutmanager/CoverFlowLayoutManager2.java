@@ -77,7 +77,6 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
      */
     @Override
     public PointF computeScrollVectorForPosition(int targetPosition) {
-        Log.e("TAG", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@computeScrollVectorForPosition");
         if (getChildCount() == 0) {
             return null;
         }
@@ -97,7 +96,7 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        Log.e("TAG", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  onLayoutChildren  start");
+        if (null == recyclerView) return;
         if (state.getItemCount() == 0) {
             removeAndRecycleAllViews(recycler);
             return;
@@ -150,9 +149,9 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
                 //添加显示item
                 if (null == itemAttachedState.get(i) || !itemAttachedState.get(i)) {
                     View child = recycler.getViewForPosition(i);
-                    int measureSpecWidth = View.MeasureSpec.makeMeasureSpec(decoratedMeasuredWidth, View.MeasureSpec.EXACTLY);
-                    int measureSpecHeight = View.MeasureSpec.makeMeasureSpec(decoratedMeasuredHeight, View.MeasureSpec.EXACTLY);
-                    child.measure(measureSpecWidth, measureSpecHeight);
+                    child.getLayoutParams().width = decoratedMeasuredWidth;
+                    child.getLayoutParams().height = decoratedMeasuredHeight;
+                    measureChildWithMargins(child,0,0);
                     addView(child);
                     layoutItem(child, allItemframs.get(i));
                     itemAttachedState.put(i, true);
@@ -174,7 +173,6 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
         if (null != onPagerChangeListener) {
             onPagerChangeListener.onPageSelected(getCurrPagerIndex());
         }
-        Log.e("TAG", "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  onLayoutChildren  end");
     }
 
     @Override
@@ -350,9 +348,10 @@ public class CoverFlowLayoutManager2 extends RecyclerView.LayoutManager implemen
             if (Rect.intersects(recyclerViewFrame, allItemframs.get(j))) {
                 if (null == itemAttachedState.get(j) || !itemAttachedState.get(j)) {
                     View scrap = recycler.getViewForPosition(j); //这个方法耗时(四级缓存查找),不必要不要执行(不要放在if判断之前)
-                    int measureSpecWidth = View.MeasureSpec.makeMeasureSpec(recycleViewWidth / columCount, View.MeasureSpec.EXACTLY);
-                    int measureSpecHeight = View.MeasureSpec.makeMeasureSpec(recyclerViewHeight / rowCount, View.MeasureSpec.EXACTLY);
-                    scrap.measure(measureSpecWidth, measureSpecHeight);
+                    scrap.getLayoutParams().width = recycleViewWidth / columCount;
+                    scrap.getLayoutParams().height = recyclerViewHeight / rowCount;
+                    measureChildWithMargins(scrap,0,0);
+
                     if (slidingDirection == NEGATIVE_DIRECTION) { //向下滑动
                         addView(scrap, j % columCount);
                     } else {

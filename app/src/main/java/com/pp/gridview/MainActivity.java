@@ -1,5 +1,6 @@
 package com.pp.gridview;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -11,9 +12,9 @@ import android.widget.Toast;
 
 import com.pp.gridview.adapter.BaseAdapter;
 import com.pp.gridview.customview.decoration.AroundItemDecoration;
+import com.pp.gridview.customview.gridview.GridItemTouchHelperCallback;
 import com.pp.gridview.customview.layoutmanager.CoverFlowLayoutManager2;
 import com.pp.gridview.customview.layoutmanager.GridItemTouchManager;
-import com.pp.gridview.customview.gridview.GridItemTouchHelperCallback;
 import com.pp.gridview.data.ItemModel;
 
 import java.util.ArrayList;
@@ -50,8 +51,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         baseAdapter.setOnItemClickListener(onItemClickListener);
         coverFlowLayoutManager2 = new CoverFlowLayoutManager2(3, 5, CoverFlowLayoutManager2.HORIZONTAL);
         main_recyclerview.setLayoutManager(coverFlowLayoutManager2);
+//        main_recyclerview.setLayoutManager(new GridLayoutManager(this,5, GridLayoutManager.HORIZONTAL,false));
         main_recyclerview.setAdapter(baseAdapter);
-        main_recyclerview.addItemDecoration(new AroundItemDecoration());
+        main_recyclerview.addItemDecoration(new AroundItemDecoration(Color.GREEN, 3, 3, 3, 3));
         gridItemTouchManager = new GridItemTouchManager(this, coverFlowLayoutManager2, baseAdapter);
         GridItemTouchHelperCallback gridItemTouchHelperCallback = new GridItemTouchHelperCallback(this);
         gridItemTouchHelperCallback.setOnItemTouchHelperListener(gridItemTouchManager);
