@@ -39,7 +39,6 @@ public class CoverFlowLayoutManager extends RecyclerView.LayoutManager {
      */
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        Log.e("TAG", "*******************  onLayoutChildren");
         if (state.getItemCount() == 0) {
             removeAndRecycleAllViews(recycler);
             return;

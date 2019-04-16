@@ -1,55 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.pp.gridview.MainActivity">
+    android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/main_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="smoothScrollToPosition"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toTopOf="@id/main_recyclerview"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/main_btn2"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/main_btn2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="scrollToPosition"
-        android:textAllCaps="false"
-        app:layout_constraintBottom_toBottomOf="@id/main_btn"
-        app:layout_constraintLeft_toRightOf="@id/main_btn"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/main_btn" />
-
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/main_recyclerview"
+        android:id="@+id/main_layoutmanager"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/main_btn">
-
-    </android.support.v7.widget.RecyclerView>
-
-    <TextView
-        android:id="@+id/main_tv_indicator"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="444"
+        android:onClick="onLayoutManager"
+        android:text="@string/custom_layoutmanager"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toTopOf="@id/main_decortion"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintWidth_percent="0.8" />
+
+    <Button
+        android:id="@+id/main_decortion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:onClick="onDecortion"
+        android:text="@string/custom_decoration"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toTopOf="@id/main_vhelper"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/main_layoutmanager"
+        app:layout_constraintWidth_percent="0.8" />
+
+    <Button
+        android:id="@+id/main_vhelper"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:onClick="onViewHolderHelper"
+        android:text="@string/viewholderhelper"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/main_recyclerview" />
-
-
+        app:layout_constraintTop_toBottomOf="@id/main_decortion"
+        app:layout_constraintWidth_percent="0.8" />
 </android.support.constraint.ConstraintLayout>

@@ -3,7 +3,6 @@ package com.pp.gridview.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +42,6 @@ public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
-        Log.e("TAG", "************** onCreateViewHolder ");
         return viewHolder;
     }
 
@@ -54,10 +52,8 @@ public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        Log.e("TAG", "************** onBindViewHolder position : " + position);
         final ItemModel itemModel = dataList.get(position);
         if (null != itemModel) {
-//            Glide.with(context).load(itemModel.getIconId()).apply(requestOptions).into(holder.iv_show);
             holder.iv_show.setImageResource(itemModel.getIconId());
         }
         if (null != onItemClickListener) {
@@ -99,6 +95,7 @@ public class BaseAdapter extends RecyclerView.Adapter<BaseAdapter.ViewHolder> {
         ItemModel from = dataList.get(fromPos);
         ItemModel to = dataList.set(toPos, from);
         dataList.set(fromPos, to);
+
         notifyItemChanged(fromPos);
         notifyItemChanged(toPos);
     }

@@ -1,7 +1,6 @@
 package com.pp.gridview.customview.layoutmanager;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +8,7 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.WindowManager;
 
+import com.pp.gridview.R;
 import com.pp.gridview.adapter.BaseAdapter;
 import com.pp.gridview.customview.deletebar.DeleteBarView;
 import com.pp.gridview.customview.gridview.GridItemTouchHelperCallback;
@@ -54,9 +54,6 @@ public class GridItemTouchManager implements GridItemTouchHelperCallback.OnItemT
 
     @Override
     public void exChange(RecyclerView.ViewHolder dragHolder, RecyclerView.ViewHolder targetViewHolder, int fromPos, int toPos) {
-        if (null != dragHolder) {
-            dragHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
-        }
         if (exChangeMode && mAdapter != null)
             mAdapter.swapItem(fromPos, toPos);
     }
@@ -74,10 +71,9 @@ public class GridItemTouchManager implements GridItemTouchHelperCallback.OnItemT
 
     @Override
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE) {
-            viewHolder.itemView.setBackgroundColor(Color.RED);
-        }
         if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+            viewHolder.itemView.setBackgroundResource(R.drawable.selector_rectangle);
+            viewHolder.itemView.setSelected(true);
             if (coverFlowLayoutManager2 != null) {
                 coverFlowLayoutManager2.setCanScroll(false);
             }
@@ -100,7 +96,7 @@ public class GridItemTouchManager implements GridItemTouchHelperCallback.OnItemT
     @Override
     public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         if (null == viewHolder) return;
-        viewHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
+//        viewHolder.itemView.setBackgroundColor(Color.TRANSPARENT);
     }
 }
 

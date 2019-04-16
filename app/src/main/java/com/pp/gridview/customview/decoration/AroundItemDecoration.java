@@ -2,29 +2,20 @@ package com.pp.gridview.customview.decoration;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 public class AroundItemDecoration extends RecyclerView.ItemDecoration {
-    private int offsetLeft;
-    private int offsetTop;
-    private int offsetRight;
-    private int offsetBottom;
-    private final Drawable mDivide;
+
+    protected final DecorationHelper mDecorationHelper;
 
     public AroundItemDecoration(@ColorInt int color,
                                 int offsetLeft,
                                 int offsetTop,
                                 int offsetRight,
                                 int offsetBottom) {
-        mDivide = new ColorDrawable(color);
-        this.offsetLeft = offsetLeft;
-        this.offsetTop = offsetTop;
-        this.offsetRight = offsetRight;
-        this.offsetBottom = offsetBottom;
+        mDecorationHelper = new DecorationHelper(color, offsetLeft, offsetTop, offsetRight, offsetBottom);
     }
 
     /**
@@ -39,7 +30,10 @@ public class AroundItemDecoration extends RecyclerView.ItemDecoration {
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         // 设置 内嵌偏移长度,在条目left，top,right,bottom基础上,分别增加outRect对应的值(看源码)
-        outRect.set(offsetLeft, offsetTop, offsetRight, offsetBottom);
+        outRect.set(mDecorationHelper.getOffsetLeft(),
+                mDecorationHelper.getOffsetTop(),
+                mDecorationHelper.getOffsetRight(),
+                mDecorationHelper.getOffsetBottom());
     }
 
     /**
@@ -58,58 +52,13 @@ public class AroundItemDecoration extends RecyclerView.ItemDecoration {
         c.save();
         for (int i = 0; i < parent.getChildCount(); i++) {
             final View view = parent.getChildAt(i);
-            drawLeftDecoration(c, view);
-            drawTopDecoration(c, view);
-            drawRightDecoration(c, view);
-            drawBottomDecoration(c, view);
+            mDecorationHelper.drawLeftDecoration(c, view);
+            mDecorationHelper.drawTopDecoration(c, view);
+            mDecorationHelper.drawRightDecoration(c, view);
+            mDecorationHelper.drawBottomDecoration(c, view);
         }
         c.restore();
     }
-
-    private void drawLeftDecoration(Canvas c, View view) {
-        mDivide.setBounds(view.getLeft() - offsetLeft,
-                view.getTop() - offsetTop,
-                view.getRight(),
-                view.getBottom() + offsetBottom);
-        mDivide.draw(c);
-    }
-
-    /**
-     * 这个方法在条目绘制之后调用
-     * 设置做粘性标题绘制
-     *
-     * @param c
-     * @param parent
-     * @param state
-     */
-    @Override
-    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-        super.onDrawOver(c, parent, state);
-    }
-
-
-    private void drawTopDecoration(Canvas c, View view) {
-        mDivide.setBounds(view.getLeft() - offsetLeft,
-                view.getTop() - offsetTop,
-                view.getRight() + offsetRight,
-                view.getBottom());
-        mDivide.draw(c);
-    }
-
-    private void drawRightDecoration(Canvas c, View view) {
-        mDivide.setBounds(view.getLeft(),
-                view.getTop() - offsetTop,
-                view.getRight() + offsetRight,
-                view.getBottom() + offsetBottom);
-        mDivide.draw(c);
-    }
-
-    private void drawBottomDecoration(Canvas c, View view) {
-        mDivide.setBounds(view.getLeft() - offsetLeft,
-                view.getTop(),
-                view.getRight() + offsetBottom,
-                view.getBottom() + offsetBottom);
-        mDivide.draw(c);
-    }
 }
+
 
