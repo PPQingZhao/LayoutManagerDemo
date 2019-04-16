@@ -39,7 +39,7 @@ public class BaseVHDecorationActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
-        List<MultiItemEntity> dataList = new ArrayList<>();
+        final List<MultiItemEntity> dataList = new ArrayList<>();
         VHelperLevel0 vHelperLevel0 = null;
         VHelperLevel1 vHelperLevel1 = null;
         for (int i = 0; i < 50; i++) {
@@ -77,7 +77,8 @@ public class BaseVHDecorationActivity extends AppCompatActivity {
                         }
                         break;
                     case BaseTitleMultiItemAdapter.TYPE_LEVEL_1:
-                        Toast.makeText(getApplicationContext(), String.valueOf(position), Toast.LENGTH_SHORT).show();
+                        VHelperLevel1 vHelperLevel1 = (VHelperLevel1) item;
+                        Toast.makeText(getApplicationContext(), new StringBuilder(vHelperLevel1.getName()), Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
